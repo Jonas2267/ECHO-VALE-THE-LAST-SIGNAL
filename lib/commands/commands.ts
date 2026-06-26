@@ -214,8 +214,8 @@ export function executeCommand(parsed: ParsedCommand, context: CommandContext): 
       return summarizeNews(demoNews);
 
     case 'get_weather':
-      context.open('dashboard');
-      return 'Wetter-Karte geöffnet. Live-Wetter nutzt /api/weather mit WEATHER_API_KEY und Standortfreigabe; sonst Fallback.';
+      context.open('weather');
+      return 'Wetter-Modul geöffnet. Live-Wetter nutzt /api/weather mit WEATHER_API_KEY und Standortfreigabe; sonst Fallback.';
 
     case 'find_place':
       context.open('navigation');

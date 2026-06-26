@@ -6,6 +6,8 @@ AWS KI Manager ist ein kostenloses, persönliches Personal-KI-OS für Alltag, Ar
 
 Die App ist so gebaut, dass sie ohne API-Key startet:
 
+- Wetter: Open-Meteo Forecast + Hourly Forecast, kostenlos und ohne API-Key.
+- Geocoding: Open-Meteo Geocoding für Stadt -> Koordinaten, eigener `/api/geocode`-Proxy.
 - Wetter: Open-Meteo, kostenlos und ohne API-Key.
 - Geocoding: Open-Meteo Geocoding für Stadt -> Koordinaten.
 - News: öffentliche RSS-Feeds über Next.js Server-Proxy; optional NewsAPI-Key als Zusatz.
@@ -14,6 +16,23 @@ Die App ist so gebaut, dass sie ohne API-Key startet:
 - Navigation: kostenlose Links zu Google Maps, Apple Karten und OpenStreetMap.
 - KI: lokaler AURA-Modus; OpenAI ist optional und wird nur serverseitig über `.env.local` verwendet.
 - Aufgaben, Termine, Erinnerungen, Notizen und Fokusmodus: lokal im Browser.
+
+
+## Automatischer kostenloser Setup-/Connect-Wizard
+
+Beim ersten Login öffnet AWS KI Manager automatisch den Premium-Wizard **„AWS KI Manager einrichten“**. Über **„Kostenlose Live-Funktionen verbinden“** werden alle kostenlosen Quellen geprüft und Browser-Berechtigungen nacheinander, transparent und nur nach Nutzerklick abgefragt.
+
+Der Wizard speichert einen Provider-Status pro Modul:
+
+- `connected` – kostenlos live verbunden, z. B. Open-Meteo, Wikipedia, OpenStreetMap oder Maps-Links.
+- `available` – Funktion ist verfügbar, benötigt aber eine Nutzeraktion, z. B. File Picker.
+- `permission-needed` – Browser-Freigabe ist erforderlich.
+- `optional-key-needed` – optionaler API-Key möglich, aber nicht Pflicht.
+- `blocked`, `unavailable`, `fallback` – transparent angezeigte Einschränkungen mit lokalem Fallback.
+
+Automatisch geprüft werden Open-Meteo Wetter/Geocoding, Wikipedia/Wikimedia, OpenStreetMap/Nominatim-Orte, kostenlose Maps-Links, RSS-News/Fallback, lokaler Speicher und der kostenlose lokale AURA-Modus. Tankstellen können als Orte gefunden werden; echte Spritpreise werden nicht behauptet und benötigen eine rechtlich erlaubte Fuel-Quelle.
+
+In Dashboard und Einstellungen zeigt die **Verbindungszentrale**, welche Funktionen verbunden sind. Über Einstellungen lassen sich Setup, Provider-Tests und Berechtigungsprüfung erneut starten.
 
 ## Sicherheit und Datenschutz
 
@@ -52,6 +71,10 @@ Open-Meteo, Wikipedia, OpenStreetMap/Nominatim und Maps-Links benötigen keinen 
 
 - Premium Login/Onboarding mit lokalem Account, Passwort-Hash und wiederkehrendem AURA-Start.
 - Ansicht **Heute** mit Tagesbriefing, Wetter, Aufgaben, Terminen, Erinnerungen und Schnellzugriffen.
+- Neue Website-Topbar plus Floating Quick Dock für Desktop und Mobile.
+- AURA Core Chat für Befehle wie „Wie sieht mein Tag aus?“, „Was ist heute in Deutschland passiert?“, „Wie ist das Wetter?“, „Finde eine Apotheke“, „Suche Wikipedia nach …“ oder „Öffne Fokusmodus“.
+- News-Modul mit kostenloser RSS-Strategie, Kategorien, Suche und optionalem NewsAPI-Fallback.
+- Wetter-Modul mit Open-Meteo, Ortssuche, stündlichem Forecast, 30-Minuten-Hinweis über nächsten Stundenwert, Regen-/Gewitter-/Sonnen-/Wind-Risiken und Tageshoch/-tief.
 - AURA Core Chat für Befehle wie „Wie sieht mein Tag aus?“, „Was ist heute in Deutschland passiert?“, „Wie ist das Wetter?“, „Finde eine Apotheke“, „Suche Wikipedia nach …“ oder „Öffne Fokusmodus“.
 - News-Modul mit kostenloser RSS-Strategie, Kategorien, Suche und optionalem NewsAPI-Fallback.
 - Wetter-Modul mit Open-Meteo, Temperatur, Tageshoch/-tief, Regenwahrscheinlichkeit, Wind und Wettercode-Text.
@@ -62,6 +85,7 @@ Open-Meteo, Wikipedia, OpenStreetMap/Nominatim und Maps-Links benötigen keinen 
 - Permission Center mit echten Browser-APIs für Notifications, Geolocation, Mikrofon, Speech-Erkennung und Datei-Auswahl.
 - Dateien-Modul: liest Textdateien nur nach aktivem File-Picker-Klick.
 - Command Palette wie Spotlight über `Ctrl+K` / `Cmd+K`.
+- Settings Drawer für Darstellung, AURA-Stil, lokale Daten, Datenschutz, Wetter und Navigation.
 
 ## Browser-Berechtigungen
 
@@ -88,6 +112,8 @@ Die Web-PWA kann viel im Browser, aber iOS-native Funktionen wie EventKit, Weath
 ## Architektur
 
 - `app/page.tsx` — PWA Shell, Premium UI, AURA, Heute, Dashboard, Module, echte Browser-Permissions.
+- `app/api/weather` — Open-Meteo Forecast, Hourly Forecast, Tageswerte und Wettercode-Mapping.
+- `app/api/geocode` — Open-Meteo Geocoding.
 - `app/api/weather` — Open-Meteo Wetter + Geocoding.
 - `app/api/news` — RSS-News-Proxy + optional NewsAPI.
 - `app/api/wiki` — Wikipedia/Wikimedia Kurzantworten.

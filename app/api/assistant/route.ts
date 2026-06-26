@@ -36,9 +36,16 @@ async function localAssistant(message: string) {
     const items = demoNews.slice(0, 5);
     return { answer: `AURA Core: Live-News sind ohne NEWS_API_KEY nicht verbunden. Ich nutze den lokalen Fallback: ${summarizeNews(items)}`, status: 'api-missing', suggestions: ['Öffne News', 'Was ist heute in Deutschland passiert?'] };
   }
-  if (/wetter/.test(text)) {
-    const weather = demoWeather('aktueller Standort');
-    return { answer: `AURA Core: Live-Wetter nutzt kostenlos Open-Meteo; Standortfreigabe oder Stadt verbessert die Prognose. Fallback: ${weather.temperatureC}°C, ${weather.condition}.`, status: 'api-missing', suggestions: ['Standort freigeben', 'Öffne Dashboard'] };
+  if (/wetter|regnet|gewitter|sonne|wind/.test(text)) {
+    const city = message.match(/(?:in|für|fuer)\s+([A-Za-zÄÖÜäöüß\- ]{2,})/)?.[1]?.trim() ?? 'Berlin';
+    const weather = demoWeather(city);
+    return { answer: `AURA Core: Wetterfragen laufen kostenlos über Open-Meteo. Für „in 30 Minuten“ nutze ich den nächstliegenden Stundenwert. Aktueller Fallback für ${city}: ${weather.temperatureC}°C, ${weather.condition}.`, status: 'local', suggestions: [`Wetter in ${city}`, 'Öffne Wetter'] };
+  }
+  if (/(wiki|wikipedia|erklär|erklaer|was ist)/.test(text)) {
+    return { answer: 'AURA Core: Ich öffne die kostenlose Wikipedia-Suche und fasse die Quelle kurz zusammen.', status: 'live', suggestions: ['Suche Wikipedia nach TCP/IP', 'Öffne Wissen'] };
+  }
+  if (/(fokus|pomodoro|konzentrier)/.test(text)) {
+    return { answer: 'AURA Core: Fokusmodus bereit. Wähle eine Aufgabe und starte einen lokalen Timer – ohne Cloud-Abhängigkeit.', status: 'local', suggestions: ['Öffne Fokusmodus', 'Starte Fokus für 25 Minuten'] };
   }
   if (/(tankstelle|apotheke|supermarkt|parkplatz|werkstatt|mcdonald|kleidung|geldautomat|navigation|route)/.test(text)) {
     const category = detectPlaceCategory(message) ?? 'fuel';

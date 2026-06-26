@@ -16,12 +16,13 @@ export async function GET(request: Request) {
     const url = new URL('https://api.open-meteo.com/v1/forecast');
     url.searchParams.set('latitude', String(coordinates.latitude));
     url.searchParams.set('longitude', String(coordinates.longitude));
-    url.searchParams.set('current', 'temperature_2m,weather_code,wind_speed_10m,precipitation');
-    url.searchParams.set('daily', 'temperature_2m_max,temperature_2m_min,precipitation_probability_max');
+    url.searchParams.set('current', 'temperature_2m,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,cloud_cover');
+    url.searchParams.set('hourly', 'temperature_2m,precipitation_probability,precipitation,weather_code,cloud_cover,wind_speed_10m');
+    url.searchParams.set('daily', 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset');
     url.searchParams.set('timezone', 'auto');
     const response = await fetch(url, { next: { revalidate: 600 } });
     if (!response.ok) throw new Error(`Open-Meteo nicht erreichbar (${response.status}).`);
-    const data = (await response.json()) as { current?: { temperature_2m?: number; weather_code?: number; wind_speed_10m?: number }; daily?: { temperature_2m_max?: number[]; temperature_2m_min?: number[]; precipitation_probability_max?: number[] } };
+    const data = (await response.json()) as { current?: { temperature_2m?: number; weather_code?: number; wind_speed_10m?: number; wind_gusts_10m?: number; cloud_cover?: number }; hourly?: { time?: string[]; temperature_2m?: number[]; precipitation_probability?: number[]; precipitation?: number[]; weather_code?: number[]; cloud_cover?: number[]; wind_speed_10m?: number[] }; daily?: { temperature_2m_max?: number[]; temperature_2m_min?: number[]; precipitation_probability_max?: number[]; sunrise?: string[]; sunset?: string[] } };
     const code = data.current?.weather_code ?? 0;
     const result: WeatherSnapshot & { highC?: number; lowC?: number; windKmh?: number; provider?: string } = {
       location: coordinates.name,
@@ -33,7 +34,21 @@ export async function GET(request: Request) {
       highC: Math.round(data.daily?.temperature_2m_max?.[0] ?? 0),
       lowC: Math.round(data.daily?.temperature_2m_min?.[0] ?? 0),
       windKmh: Math.round(data.current?.wind_speed_10m ?? 0),
+      windGustKmh: Math.round(data.current?.wind_gusts_10m ?? 0),
+      cloudCover: data.current?.cloud_cover ?? 0,
       provider: 'Open-Meteo',
+      nearestHourNote: 'Open-Meteo liefert stündliche Werte; für 30 Minuten nutze ich den nächstliegenden Stundenwert.',
+      hourly: (data.hourly?.time ?? []).slice(0, 8).map((time, index) => ({
+        time,
+        temperatureC: Math.round(data.hourly?.temperature_2m?.[index] ?? 0),
+        precipitationProbability: data.hourly?.precipitation_probability?.[index] ?? 0,
+        precipitationMm: data.hourly?.precipitation?.[index] ?? 0,
+        cloudCover: data.hourly?.cloud_cover?.[index] ?? 0,
+        windKmh: Math.round(data.hourly?.wind_speed_10m?.[index] ?? 0),
+        condition: weatherCodes[data.hourly?.weather_code?.[index] ?? 0] ?? 'unbekannt',
+      })),
+      sunrise: data.daily?.sunrise?.[0],
+      sunset: data.daily?.sunset?.[0],
     };
     return NextResponse.json(result);
   } catch (error) {

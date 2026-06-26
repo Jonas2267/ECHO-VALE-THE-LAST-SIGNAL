@@ -1,7 +1,8 @@
 export type PermissionStatus = 'demo' | 'requested' | 'granted' | 'denied' | 'disconnected';
 export type DataMode = 'demo' | 'live' | 'mixed';
 export type SourceStatus = 'live' | 'local' | 'demo' | 'api-missing' | 'permission-missing' | 'offline';
-export type ModuleId = 'assistant' | 'dashboard' | 'calendar' | 'tasks' | 'news' | 'wiki' | 'today' | 'notes' | 'focus' | 'navigation' | 'permissions' | 'terminal' | 'files' | 'system' | 'setup';
+export type ProviderStatus = 'connected' | 'available' | 'permission-needed' | 'optional-key-needed' | 'blocked' | 'unavailable' | 'fallback';
+export type ModuleId = 'assistant' | 'weather' | 'dashboard' | 'calendar' | 'tasks' | 'news' | 'wiki' | 'today' | 'notes' | 'focus' | 'navigation' | 'permissions' | 'terminal' | 'files' | 'system' | 'setup';
 export type TaskPriority = 'niedrig' | 'mittel' | 'hoch';
 export type TaskStatus = 'offen' | 'läuft' | 'erledigt';
 
@@ -60,6 +61,16 @@ export type WeatherSnapshot = {
   precipitationProbability?: number;
   source: SourceStatus;
   updatedAt: string;
+  highC?: number;
+  lowC?: number;
+  windKmh?: number;
+  windGustKmh?: number;
+  cloudCover?: number;
+  provider?: string;
+  nearestHourNote?: string;
+  hourly?: Array<{ time: string; temperatureC: number; precipitationProbability: number; precipitationMm?: number; cloudCover?: number; windKmh?: number; condition: string }>;
+  sunrise?: string;
+  sunset?: string;
 };
 
 export type BrowserLocation = {
@@ -133,6 +144,15 @@ export type ToastMessage = {
   body: string;
 };
 
+export type ProviderConnection = {
+  id: string;
+  name: string;
+  status: ProviderStatus;
+  source: string;
+  detail: string;
+  updatedAt?: string;
+};
+
 export type AppState = {
   dataMode?: DataMode;
   runtime?: {
@@ -149,12 +169,25 @@ export type AppState = {
   permissions: PermissionItem[];
   messages: ChatMessage[];
   reminders: Reminder[];
+  providerStatus?: Record<string, ProviderConnection>;
   notes?: NoteItem[];
   focus?: FocusSession;
   activeModule: ModuleId;
   booted: boolean;
   setupStep: number;
   pwaInstallDismissed: boolean;
+  settings?: {
+    theme: 'dark' | 'light' | 'system';
+    accent: 'cyan' | 'blue' | 'green' | 'white';
+    density: 'comfort' | 'compact';
+    reducedMotion: boolean;
+    auraStyle: 'kurz' | 'normal' | 'detailliert';
+    preferLiveSources: boolean;
+    forceFreeMode: boolean;
+    defaultCity: string;
+    defaultMaps: 'google' | 'apple' | 'osm';
+    quickDock: boolean;
+  };
 };
 
 export interface StorageProvider<T> {

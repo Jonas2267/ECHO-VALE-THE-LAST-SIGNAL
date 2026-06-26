@@ -23,6 +23,10 @@ const navItems: Array<{ id: ModuleId; label: string; icon: string }> = [
   { id: 'today', label: 'Heute', icon: '✦' },
   { id: 'assistant', label: 'AURA', icon: '◉' },
   { id: 'weather', label: 'Wetter', icon: '☁' },
+const setupSteps = ['Konto', 'Benachrichtigungen', 'Kalender', 'News', 'Dateien', 'Mikrofon', 'PWA', 'Fertig'];
+const navItems: Array<{ id: ModuleId; label: string; icon: string }> = [
+  { id: 'today', label: 'Heute', icon: '✦' },
+  { id: 'assistant', label: 'AURA', icon: '◉' },
   { id: 'dashboard', label: 'Dashboard', icon: '⌂' },
   { id: 'calendar', label: 'Kalender', icon: '◇' },
   { id: 'tasks', label: 'Tasks', icon: '✓' },
@@ -68,6 +72,10 @@ const initialState = (): AppState => ({
   focus: { minutes: 25, active: false },
   settings: { theme: 'dark', accent: 'cyan', density: 'comfort', reducedMotion: false, auraStyle: 'normal', preferLiveSources: true, forceFreeMode: true, defaultCity: 'Berlin', defaultMaps: 'google', quickDock: true },
   activeModule: 'today',
+  notes: [],
+  focus: { minutes: 25, active: false },
+  activeModule: 'today',
+  activeModule: 'assistant',
   booted: false,
   setupStep: 0,
   pwaInstallDismissed: false,
@@ -600,6 +608,7 @@ function SetupWizard({ state, setState, requestNotifications, notify, openModule
     </section>
   );
 }
+
 
 function TodayModule({ state, openModule, requestNotifications }: ModuleProps) {
   const nextEvent = upcomingEvents(state.events)[0];
